@@ -259,6 +259,13 @@ public:
 		L.print();
 		U.print();
 	}
+	void inverseLowerTriangle() {
+		Matrix E(this->n);
+		for (int i = 0; i < n; i++) {
+			E[i][i] = 1;
+		}
+
+	}
 
 };
 
