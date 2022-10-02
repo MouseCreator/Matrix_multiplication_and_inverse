@@ -4,6 +4,97 @@
 #include <string>
 #include <sstream>
 #include <cmath>
+
+class Row {
+private:
+	std::vector<double> numbers;
+public:
+	Row() {}
+	Row(std::size_t size) {
+		for (int i = 0; i < size; i++) {
+			numbers.push_back(0);
+		}
+	}
+	double operator [](std::size_t i) const {
+		return numbers[i];
+	}
+	double& operator [](std::size_t i) {
+		return numbers[i];
+	}
+	Row operator +(Row& other) {
+		Row result;
+		std::size_t minSize = std::min(this->numbers.size(), other.numbers.size());
+
+		for (std::size_t i = 0; i < minSize; i++) {
+			result.numbers.push_back(this->get(i) + other.get(i));
+		}
+
+		for (std::size_t i = minSize; i < this->numbers.size(); i++) {
+			result.numbers.push_back(this->get(i));
+		}
+
+		for (std::size_t i = minSize; i < other.numbers.size(); i++) {
+			result.numbers.push_back(other.get(i));
+		}
+
+		return result;
+	}
+	Row operator -(Row& other) {
+		Row result;
+		std::size_t minSize = std::min(this->numbers.size(), other.numbers.size());
+
+		for (std::size_t i = 0; i < minSize; i++) {
+			result.numbers.push_back(this->get(i) - other[i]);
+		}
+
+		for (std::size_t i = minSize; i < this->numbers.size(); i++) {
+			result.numbers.push_back(this->get(i));
+		}
+
+		for (std::size_t i = minSize; i < other.numbers.size(); i++) {
+			result.numbers.push_back(other.get(i));
+		}
+
+		return result;
+	}
+	Row& operator -=(const Row& other) {
+
+		for (std::size_t i = 0; i < size(); i++) {
+			this->numbers[i] = (this->get(i) - other[i]);
+		}
+
+		return *this;
+	}
+	Row operator *(double& by) {
+		Row result;
+		result.numbers = this->numbers;
+		for (std::size_t i = 0; i < numbers.size(); i++) {
+			result.numbers[i] *= by;
+		}
+		return result;
+	}
+	Row operator /(double& by) {
+		Row result;
+		result.numbers = this->numbers;
+		for (std::size_t i = 0; i < numbers.size(); i++) {
+			result.numbers[i] /= by;
+		}
+		return result;
+	}
+	void add(double value) {
+		numbers.push_back(value);
+	}
+	void set(double value, std::size_t index) {
+		numbers[index] = value;
+	}
+	double get(std::size_t index) {
+		return numbers[index];
+	}
+	std::size_t size() {
+		return numbers.size();
+	}
+};
+
 class Matrix {
 
 private:
@@ -57,7 +148,12 @@ private:
 	}
 
 public:
-
+	Row operator [](std::size_t i) const {
+		return table[i];
+	}
+	Row& operator [](std::size_t i) {
+		return table[i];
+	}
 	Matrix operator *(Matrix other) {
 			if (this->n != other.n) {
 				std::cout << "Matrixes has different dimentions!" << std::endl;
@@ -135,106 +231,42 @@ public:
 		}
 	}
 	
+	void addColumn(std::vector<double> column) {
+		if (this->n == 0) {
+			std::size_t size = column.size();
+			for (int i = 0; i < size; i++) {
+				this->table.push_back(Row(size));
+			}
+			this->n = size;
+		}
+		for (int i = 0; i < n; i++) {
+			this->table[i].add(column[i]);
+		}
+	}
+	void inverseLU() {
+		Matrix L(this->n);
+		Matrix U = (*this);
 
-	Matrix inverseLU() {
-		Matrix L;
-		Matrix U;
-
-		std::vector<double> coeficients;
-
-
-
+		for (std::size_t i = 0; i < n; i++) {
+			double divideBy = U[i][i];
+			L[i][i] = 1;
+			for (std::size_t j = i + 1; j < n; j++) {
+				double coeficeint = U[j][i] / divideBy;
+				U[j] -= U[i] * coeficeint;
+				L[j][i] = coeficeint;
+			}
+		}
+		L.print();
+		U.print();
 	}
 
 };
 
-class Row {
-private:
-	std::vector<double> numbers;
-public:
-	Row() {}
-	Row(std::size_t size) {
-		for (int i = 0; i < size; i++) {
-			numbers.push_back(i);
-		}
-	}
-	double operator [](std::size_t i) const {
-		return numbers[i];
-	}
-	double & operator [](std::size_t i) {
-		return numbers[i];
-	}
-	Row operator +(Row& other) {
-		Row result;
-		std::size_t minSize = std::min(this->numbers.size(), other.numbers.size());
 
-		for (std::size_t i = 0; i < minSize; i++) {
-			result.numbers.push_back(this->get(i) + other.get(i));
-		}
-
-		for (std::size_t i = minSize; i < this->numbers.size(); i++) {
-			result.numbers.push_back(this->get(i));
-		}
-
-		for (std::size_t i = minSize; i < other.numbers.size(); i++) {
-			result.numbers.push_back(other.get(i));
-		}
-
-		return result;
-	}
-	Row operator -(Row& other) {
-		Row result;
-		std::size_t minSize = std::min(this->numbers.size(), other.numbers.size());
-
-		for (std::size_t i = 0; i < minSize; i++) {
-			result.numbers.push_back(this->get(i) - other.get(i));
-		}
-
-		for (std::size_t i = minSize; i < this->numbers.size(); i++) {
-			result.numbers.push_back(this->get(i));
-		}
-
-		for (std::size_t i = minSize; i < other.numbers.size(); i++) {
-			result.numbers.push_back(other.get(i));
-		}
-
-		return result;
-	}
-	Row operator *(double& by) {
-		Row result;
-		result.numbers = this->numbers;
-		for (std::size_t i = 0; i < numbers.size(); i++) {
-			result.numbers[i] *= by;
-		}
-		return result;
-	}
-	Row operator /(double& by) {
-		Row result;
-		result.numbers = this->numbers;
-		for (std::size_t i = 0; i < numbers.size(); i++) {
-			result.numbers[i] /= by;
-		}
-		return result;
-	}
-	void add(double value) {
-		numbers.push_back(value);
-	}
-	void set(double value, std::size_t index) {
-		numbers[index] = value;
-	}
-	double get(std::size_t index) {
-		return numbers[index];
-	}
-	std::size_t size() {
-		return numbers.size();
-	}
-};
 
 int main() {
-	Matrix matrix1;
-	Matrix matrix2;
-	matrix1.loadFromFile("Sample.txt");
-	matrix2.loadFromFile("Sample2.txt");
-	Matrix result = matrix1 * matrix2;
-	result.print();
+	Matrix matrix;
+	matrix.loadFromFile("Sample.txt");
+	matrix.inverseLU();
+	matrix.print();
 }
