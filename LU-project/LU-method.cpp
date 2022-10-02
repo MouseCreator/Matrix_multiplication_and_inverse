@@ -158,9 +158,11 @@ public:
 			std::vector<double> newRow;
 			result.n++;
 			for (int j = 0; j < n; j++) {
+				double toAdd = 0.0;
 				for (int k = 0; k < n; k++) {
-					newRow.push_back(this->table[i][k] + other.table[k][j]);
+					toAdd += this->table[i][k] * other.table[k][j];
 				}
+				newRow.push_back(toAdd);
 			}
 			result.table.push_back(newRow);
 		}
