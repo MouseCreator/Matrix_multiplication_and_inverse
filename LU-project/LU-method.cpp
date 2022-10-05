@@ -1,10 +1,22 @@
-#include <iostream>
+﻿#include <iostream>
 #include <vector>
 #include <fstream>
 #include <string>
 #include <sstream>
 #include <cmath>
+#include <ctime>
+std::vector<double> slice(std::vector<double> const& v, int m, int n)
+{
+	auto first = v.begin() + m;
+	auto last = v.begin() + n ;
 
+	std::vector<double> vec(first, last);
+	return vec;
+}
+bool isPowerOfTwo(int n)
+{
+	return (ceil(log2(n)) == floor(log2(n)));
+}
 class Row {
 private:
 	std::vector<double> numbers;
@@ -82,7 +94,8 @@ public:
 		return result;
 	}
 	void add(double value) {
-		numbers.push_back(value);
+	
+		this->numbers.push_back(value);
 	}
 	void set(double value, std::size_t index) {
 		numbers[index] = value;
@@ -92,6 +105,37 @@ public:
 	}
 	std::size_t size() {
 		return numbers.size();
+	}
+	Row getSlice(int beg,int end) {
+		Row row(end-beg);
+		if (end - beg > this->numbers.size()) {
+			std::cout << "Incorrect data\n";
+		}
+		else {
+			row.numbers = slice(this->numbers, beg, end);
+		}
+		return row;
+	}
+	void print() {
+		for (int i = 0; i < numbers.size(); i++) {
+			std::cout << numbers[i] << std::endl;
+		}
+	}
+	bool operator ==(Row other) {
+		if (this->numbers.size() != other.numbers.size()) {
+			return false;
+		}
+		else {
+			for (int i = 0; i < this->numbers.size(); i++) {
+				if (this->numbers[i] != other.numbers[i]) {
+					return false;
+				}
+			}
+		}
+	}
+	bool operator !=(Row other) {
+		Row row = *this;
+		return !(row == other);
 	}
 };
 
@@ -146,7 +190,11 @@ private:
 			}
 		}
 	}
-
+	void setZero() {
+		for (int i = 0; i < n; i++) {
+			this->table[i]-=this->table[i];
+		}
+	}
 public:
 	Row operator [](std::size_t i) const {
 		return table[i];
@@ -155,7 +203,9 @@ public:
 		return table[i];
 	}
 	Matrix operator *(Matrix other) {
-			if (this->n != other.n) {
+			if (this->n != other.n) 
+			{
+				std::cout << this->n << " " << other.n << std::endl;
 				std::cout << "Matrixes has different dimentions!" << std::endl;
 				return Matrix(n);
 			}
@@ -174,9 +224,40 @@ public:
 			}
 			return result;
 	}
+	
+	Matrix operator -(Matrix other) {
+		Matrix result;
+		for (int i = 0; i < n; i++) {
+			result.table.push_back(this->table[i]-other.table[i]);
+		}
+		result.n = this->n;
+		return result;
+	}
+	Matrix operator +(Matrix other) {
+	
+		Matrix result;
+		for (int i = 0; i < n; i++) {
+			result.table.push_back(this->table[i] + other.table[i]);
+		}
+		result.n = this->n;
+		return result;
+	}
+	bool operator ==(Matrix other) {
+		if (this->n != other.n) {
+			return false;
+		}
+		else {
+			for (int i = 0; i < this->n; i++) {
+				if (this->table[i] != other.table[i]) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 	Matrix(int size) {
 		this->n = size;
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i <size; i++) {
 			table.push_back(Row(size));
 		}
 	}
@@ -197,6 +278,7 @@ public:
 	}
 
 	void clear() {
+		this->n = 0;
 		this->table.clear();
 	}
 
@@ -234,15 +316,16 @@ public:
 	void addColumn(std::vector<double> column) {
 		if (this->n == 0) {
 			std::size_t size = column.size();
-			for (int i = 0; i < size; i++) {
-				this->table.push_back(Row(size));
-			}
+			
+				this->table.resize(size);
+			
 			this->n = size;
 		}
 		for (int i = 0; i < n; i++) {
 			this->table[i].add(column[i]);
 		}
 	}
+	
 	void inverseLU() {
 		Matrix L(this->n);
 		Matrix U = (*this);
@@ -266,14 +349,257 @@ public:
 		}
 
 	}
-
+	std::vector<Matrix> decompose() {
+		/*std::vector<Matrix> v;
+		Row row(n/2);
+		Matrix matr;
+		
+		std::vector<double> vec;
+		for (std::size_t i = 0; i < this->n/2; i++) {
+			for (std::size_t j = 0; j < this->n/2; j++) {
+				vec.push_back(this->get(j, i));
+			}
+		
+			matr.addColumn(vec);
+			vec.clear();
+		}
+		v.push_back(matr);
+		matr.clear();
+		vec.clear();
+		for (std::size_t i = this->n/2; i < this->n; i++) {
+			for (std::size_t j = 0; j < this->n/2; j++) {
+				vec.push_back(this->get(j, i));
+			}
+			matr.addColumn(vec);
+			
+			vec.clear();
+		}
+		v.push_back(matr);
+		matr.clear();
+		vec.clear();
+		for (std::size_t i = 0; i < this->n/2; i++) {
+			for (std::size_t j = this->n / 2; j < this->n; j++) {
+				vec.push_back(this->get(j, i));
+			}
+			matr.addColumn(vec);
+			vec.clear();
+		}
+		v.push_back(matr);
+		matr.clear();
+		vec.clear();
+		for (std::size_t i = this->n / 2; i < this->n; i++) {
+			for (std::size_t j = this->n / 2; j < this->n; j++) {
+				vec.push_back(this->get(j, i));
+			}
+			
+			matr.addColumn(vec);
+			vec.clear();
+		}
+		v.push_back(matr);
+		matr.clear();
+		vec.clear();
+	
+		return v;*/
+		Row row;
+		Matrix A11;
+		Matrix A12;
+		Matrix A21;
+		Matrix A22;
+		for (int i = 0; i < this->n / 2; i++) {
+			A11.addRow(this->table[i].getSlice(0, this->n / 2));
+		}
+		for (int i = 0; i < this->n / 2; i++) {
+			A12.addRow(this->table[i].getSlice(this->n / 2, this->n));
+		}
+		for (int i = this->n / 2; i < this->n; i++) {
+			A21.addRow(this->table[i].getSlice(0, this->n/2));
+		}
+		for (int i = this->n / 2; i < this->n; i++) {
+			A22.addRow(this->table[i].getSlice(this->n / 2, this->n ));
+		}
+		std::vector<Matrix> vec;
+		vec.push_back(A11);
+		vec.push_back(A12);
+		vec.push_back(A21);
+		vec.push_back(A22);
+		return vec;
+	}
+	void addRow(Row row) {
+	
+		this->table.push_back(row);
+	
+		n++;
+	}
+	void toBlockMatrix() {
+		int a = log(this->n) / log(2);
+		a += 1;
+		
+		Row row(n);
+		a = pow(2, a);
+		int x = a - this->n;
+		
+		std::vector<double> vec;
+		for (std::size_t i = 0; i < a; i++) {
+			vec.push_back(0);
+		}
+		for (std::size_t i = 0; i < x; i++) {
+			//std::cout << i<<std::endl;
+			this->addRow(row);
+		}
+		std::cout << this->n << std::endl;
+		
+		for (std::size_t i = 0; i < x; i++) {
+			std::cout << i << std::endl;
+			this->addColumn(vec);
+		}
+		this->n = a;
+	}
 };
+Matrix Strassen(Matrix& A,Matrix& B) {
+	int size = A.getSize();
+	int size1 = B.getSize();
+	
+	if (size > 8) {
+		std::vector<Matrix> vA = A.decompose();
+		std::vector<Matrix> vB = B.decompose();
+		Matrix S1;
+		Matrix S2;
+		Matrix S3;
+		Matrix S4;
+		Matrix S5;
+		Matrix S6;
+		Matrix S7;
+		Matrix S8;
+		Matrix S9;
+		Matrix S10;
+		S1 = vB[1] - vB[3];
+		S2 = vA[0] + vA[1];
+		S3 = vA[2] + vA[3];
+		S4 = vB[2] - vB[0];
+		S5 = vA[0] + vA[3];
+		S6 = vB[0] + vB[3];
+		S7 = vA[1] - vA[3];
+		S8 = vB[2] + vB[3];
+		S9 = vA[0] - vA[2];
+		S10 = vB[0] + vB[1];
+		Matrix P1;
+		Matrix P2;
+		Matrix P3;
+		Matrix P4;
+		Matrix P5;
+		Matrix P6;
+		Matrix P7;
+		P1 = Strassen(vA[0], S1);
+		P2 = Strassen(S2,vB[3]);
+		P3 = Strassen(S3, vB[0]);
+		P4 = Strassen(vA[3], S4);
+		P5 = Strassen(S5, S6);
+		P6 = Strassen(S7, S8);
+		P7 = Strassen(S9, S10);
+		Matrix С11;
+		Matrix С12;
+		Matrix С21;
+		Matrix С22;
+		С11 = P5 + P4 - P2 + P6;
+		С12 = P1 + P2;
+		С21 = P3 + P4;
+		С22 = P5 + P1 - P3 - P7;
+		Matrix res(size);
+		std::vector<double> v;
+		/*for (std::size_t i = 0; i < size / 2; i++) {
+			for (std::size_t j = 0; j < size / 2; j++) {
+				v.push_back(С11[j][i]);
+			}
+			for (std::size_t j = 0; j < size/2; j++) {
+				v.push_back(С21[j][i]);
+			}
+			res.addColumn(v);
+			v.clear();
+		}
+		for (std::size_t i = 0; i < size/2; i++) {
+			for (std::size_t j = 0; j < size / 2; j++) {
+				v.push_back(С12[j][i]);
+			}
+			for (std::size_t j = 0; j < size/2; j++) {
+				v.push_back(С22[j][i]);
+			}
+			res.addColumn(v);
+			v.clear();
+		}*/
+		Row row;
+		for (int i = 0; i < size / 2; i++) {
+			for (int j = 0; j < size / 2; j++) {
+				res[i][j] = С11[i][j];
+				res[i][j + size / 2] = С12[i][j];
+				res[i + size / 2][j] = С21[i][j];
+				res[i + size / 2][j + size / 2] = С22[i][j];
+			}
+		}
+		return res;
+	}
+	else {
+		
+		return A * B;
+	}
+	
+}
+Matrix fastMultiplication(Matrix A, Matrix B) {
+	int size = A.getSize();
+	if (!isPowerOfTwo(A.getSize())) {
+		A.toBlockMatrix();
+	}
+	if (!isPowerOfTwo(B.getSize())) {
+		B.toBlockMatrix();
+	}
 
-
+	Matrix C = Strassen(A, B);
+	Matrix D(size);
+	if (C.getSize() != size) {
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				D[i][j] = C[i][j];
+			}
+		}
+		return D;
+	}
+	return C;
+}
+Row createRandomRow(int size) {
+	Row row;
+	for (int i = 0; i < size; i++) {
+		row.add(rand() % size);
+	}
+	return row;
+}
+Matrix createRandomMatrix(int size) {
+	Matrix res;
+	
+	for (int i = 0; i < size; i++) {
+		
+		res.addRow(createRandomRow(size));
+	}
+	
+	return res;
+}
 
 int main() {
-	Matrix matrix;
-	matrix.loadFromFile("Sample.txt");
-	matrix.inverseLU();
-	matrix.print();
+	srand(time(NULL));
+	Matrix A;
+	Matrix B;
+	Matrix C;
+	Matrix D;
+	int n = 60;
+	A = createRandomMatrix(n);
+	B = createRandomMatrix(n);
+	//std::vector<Matrix> v;
+	
+
+	C=fastMultiplication(A, B);
+	//C.print();
+	D = A * B;
+	if (C == D) {
+		std::cout << "Peremoga" << std::endl;
+	}
+	//matrix.inverseLU();
+	//matrix.print();
 }
