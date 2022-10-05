@@ -50,7 +50,7 @@ TEST_CASE("Test inverse matrix using LU extension") {
 	Matrix A;
 	srand(time(NULL));
 	int testCases = 100;
-	Matrix E = Matrix::identityMatrix(n);
+	Matrix E = MatrixFactory::identityMatrix(n);
 	for (int i = 0; i < testCases; i++) {
 		A = MatrixFactory::createRandomMatrix(n);
 		Matrix B = A.inverseLU();
@@ -69,4 +69,37 @@ TEST_CASE("Test inverse matrix using LU extension") {
 		}
 		CHECK(isValid);
 	}
+}
+
+TEST_CASE("Speedtest") {
+	std::clock_t  begin;
+	std::clock_t  end;
+	bool isCorrect = true;
+	std::cout << "Speedtest:" << std::endl;
+	for (int n = 32; n <= 512; n *= 2) {
+		Matrix A = MatrixFactory::createRandomMatrix(n);
+		Matrix B = MatrixFactory::createRandomMatrix(n);
+
+		//DETERMINENT == 0 ???
+
+		Matrix E = MatrixFactory::identityMatrix(n);
+		std::cout << "N = " << n << std::endl;
+		
+		begin = clock();
+
+		Matrix multiplied = MatrixFactory::fastMultiplication(A, B);
+
+		end = clock();
+		std::cout << "\tFast Matrix Multiplication: " << end - begin  << "ms" << std::endl;
+		isCorrect = multiplied == A * B;
+		CHECK(isCorrect);
+
+		begin = clock();
+
+		A.inverseLU();
+
+		end = clock();
+		std::cout << "\tInverse matrix (LU extension): " << end - begin << "ms" << std::endl;
+	}
+
 }

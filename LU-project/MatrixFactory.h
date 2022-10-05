@@ -7,6 +7,15 @@ private:
 		return (ceil(log2(n)) == floor(log2(n)));
 	}
 public:
+	static Matrix identityMatrix(int n) {
+		Matrix identity;
+		for (int i = 0; i < n; i++) {
+			Row rowToAdd(n);
+			rowToAdd[i] = 1;
+			identity.appendRow(rowToAdd);
+		}
+		return identity;
+	}
 	static Matrix Strassen(Matrix& A, Matrix& B) {
 		int size = A.getSize();
 		int size1 = B.getSize();
@@ -131,4 +140,5 @@ public:
 
 		return res;
 	}
+
 };

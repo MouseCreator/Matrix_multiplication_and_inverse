@@ -1,8 +1,8 @@
-﻿#include "Matrix.h"
+﻿#include "MatrixFactory.h"
 
 bool Matrix::LUextensionUsingSum(Matrix& L, Matrix& U) {
 
-	L = Matrix::identityMatrix(n);
+	L = MatrixFactory::identityMatrix(n);
 	U = Matrix(n);
 
 	for (int i = 0; i < n; i++) {

@@ -113,12 +113,12 @@ public:
 		}
 		return row;
 	}
-	void print() {
+	void print() const {
 		for (int i = 0; i < numbers.size(); i++) {
 			std::cout << numbers[i] << std::endl;
 		}
 	}
-	bool operator ==(Row other) {
+	bool operator ==(Row other) const{
 		double delta = 0.001;
 		if (this->numbers.size() != other.numbers.size()) {
 			return false;
@@ -343,15 +343,9 @@ public:
 			this->toSquareMatrix();
 		}
 	}
-	static Matrix identityMatrix(int n) {
-		Matrix identity;
-		identity.n = n;
-		for (int i = 0; i < n; i++) {
-			Row rowToAdd(n);
-			rowToAdd[i] = 1;
-			identity.table.push_back(rowToAdd);
-		}
-		return identity;
+	void appendRow(Row row) {
+		this->table.push_back(row);
+		n++;
 	}
 	void addColumn(std::vector<double> column) {
 		if (this->n == 0) {
@@ -416,10 +410,10 @@ public:
 		for (std::size_t i = 0; i < x; i++) {
 			this->addRow(row);
 		}
-		std::cout << this->n << std::endl;
+		//std::cout << this->n << std::endl;
 
 		for (std::size_t i = 0; i < x; i++) {
-			std::cout << i << std::endl;
+			//std::cout << i << std::endl;
 			this->addColumn(vec);
 		}
 		this->n = a;
