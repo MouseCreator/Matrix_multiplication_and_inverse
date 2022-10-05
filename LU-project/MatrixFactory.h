@@ -112,12 +112,30 @@ public:
 		}
 		return row;
 	}
+	static Row createRandomRealRow(int size) {
+		Row row;
+		for (int i = 0; i < size; i++) {
+			row.add((double)rand() / 1000);
+		}
+		return row;
+	}
 	static Matrix createRandomMatrix(int size) {
 		Matrix res;
 
 		for (int i = 0; i < size; i++) {
 
 			res.addRow(createRandomRow(size));
+		}
+
+		return res;
+	}
+
+	static Matrix createRandomRealMatrix(int size) {
+		Matrix res;
+
+		for (int i = 0; i < size; i++) {
+
+			res.addRow(createRandomRealRow(size));
 		}
 
 		return res;

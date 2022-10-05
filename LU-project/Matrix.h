@@ -119,7 +119,7 @@ public:
 		}
 	}
 	bool operator ==(Row other) const{
-		double delta = 0.001;
+		double delta = 0.00001;
 		if (this->numbers.size() != other.numbers.size()) {
 			return false;
 		}

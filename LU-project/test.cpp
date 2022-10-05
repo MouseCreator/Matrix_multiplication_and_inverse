@@ -9,7 +9,7 @@ TEST_CASE("testing LU extension") {
 	srand(time(NULL));
 	int testCases = 100;
 	for (int i = 0; i < testCases; i++) {
-		A = MatrixFactory::createRandomMatrix(n);
+		A = MatrixFactory::createRandomRealMatrix(n);
 		bool isValid = true;
 		if (!A.LUextension(L, U)) {
 			isValid = L * U == A;
@@ -52,7 +52,7 @@ TEST_CASE("Test inverse matrix using LU extension") {
 	int testCases = 100;
 	Matrix E = MatrixFactory::identityMatrix(n);
 	for (int i = 0; i < testCases; i++) {
-		A = MatrixFactory::createRandomMatrix(n);
+		A = MatrixFactory::createRandomRealMatrix(n);
 		Matrix B = A.inverseLU();
 		bool isValid = true;
 		if (B.getSize() > 0) {
@@ -71,35 +71,52 @@ TEST_CASE("Test inverse matrix using LU extension") {
 	}
 }
 
-TEST_CASE("Speedtest") {
+TEST_CASE("Multiplication Speedtest") {
 	std::clock_t  begin;
 	std::clock_t  end;
 	bool isCorrect = true;
-	std::cout << "Speedtest:" << std::endl;
+	std::cout << "Multiplication Speedtest:" << std::endl;
 	for (int n = 32; n <= 512; n *= 2) {
-		Matrix A = MatrixFactory::createRandomMatrix(n);
-		Matrix B = MatrixFactory::createRandomMatrix(n);
+		Matrix A = MatrixFactory::createRandomRealMatrix(n);
+		Matrix B = MatrixFactory::createRandomRealMatrix(n);
 
-		//DETERMINENT == 0 ???
+		
 
-		Matrix E = MatrixFactory::identityMatrix(n);
-		std::cout << "N = " << n << std::endl;
+		std::cout << "\tN = " << n << std::endl;
 		
 		begin = clock();
 
 		Matrix multiplied = MatrixFactory::fastMultiplication(A, B);
 
 		end = clock();
-		std::cout << "\tFast Matrix Multiplication: " << end - begin  << "ms" << std::endl;
+		std::cout << "\tTime: " << end - begin << "ms" << std::endl << std::endl;
 		isCorrect = multiplied == A * B;
 		CHECK(isCorrect);
 
+	}
+
+}
+
+TEST_CASE("LU Speedtest") {
+	std::clock_t  begin;
+	std::clock_t  end;
+	bool isCorrect = true;
+	std::cout << "LU Speedtest:" << std::endl;
+	for (int n = 32; n <= 1024; n *= 2) {
+		Matrix A = MatrixFactory::createRandomRealMatrix(n);
+		//DETERMINENT == 0 ???
+		Matrix E = MatrixFactory::identityMatrix(n);
+		std::cout << "\tN = " << n << std::endl;
 		begin = clock();
 
-		A.inverseLU();
+		Matrix Inverse = A.inverseLU();
 
 		end = clock();
-		std::cout << "\tInverse matrix (LU extension): " << end - begin << "ms" << std::endl;
+
+		isCorrect = Inverse * A == E;
+
+		CHECK(isCorrect);
+		std::cout << "\tTime: " << end - begin << "ms" << std::endl << std::endl;
 	}
 
 }
