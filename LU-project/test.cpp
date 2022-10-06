@@ -1,6 +1,13 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest/doctest.h"
 #include "MatrixFactory.h"
+
+TEST_CASE("Additional test") {
+	Matrix A, L, U;
+	A.loadFromFile("Sample.txt");
+	A.LUextensionUsingSum(L, U);
+}
+
 TEST_CASE("testing LU extension") {
 	int n = 5;
 	Matrix A;
@@ -19,13 +26,14 @@ TEST_CASE("testing LU extension") {
 	for (int i = 0; i < testCases; i++) {
 		A = MatrixFactory::createRandomSparsedMatrix(n);
 		bool isValid = true;
-		if (!A.LUextension(L, U)) {
+		if (!A.LUextensionUsingSum(L, U)) {
 			isValid = L * U == A;
 		}
 		CHECK(isValid);
 	}
 }
 TEST_CASE("Test fast multiplication") {
+	srand(time(NULL));
 	Matrix A;
 	Matrix B;
 	Matrix C;
@@ -46,6 +54,7 @@ TEST_CASE("Test fast multiplication") {
 }
 
 TEST_CASE("Test inverse matrix using LU extension") {
+
 	int n = 3;
 	Matrix A;
 	srand(time(NULL));
@@ -72,11 +81,12 @@ TEST_CASE("Test inverse matrix using LU extension") {
 }
 
 TEST_CASE("Multiplication Speedtest") {
+	srand(time(NULL));
 	std::clock_t  begin;
 	std::clock_t  end;
 	bool isCorrect = true;
 	std::cout << "Multiplication Speedtest:" << std::endl;
-	for (int n = 32; n <= 512; n *= 2) {
+	for (int n = 32; n <= 256; n *= 2) {
 		Matrix A = MatrixFactory::createRandomRealMatrix(n);
 		Matrix B = MatrixFactory::createRandomRealMatrix(n);
 
@@ -98,11 +108,12 @@ TEST_CASE("Multiplication Speedtest") {
 }
 
 TEST_CASE("LU Speedtest") {
+	srand(time(NULL));
 	std::clock_t  begin;
 	std::clock_t  end;
 	bool isCorrect = true;
 	std::cout << "LU Speedtest:" << std::endl;
-	for (int n = 32; n <= 1024; n *= 2) {
+	for (int n = 32; n <= 512; n *= 2) {
 		Matrix A = MatrixFactory::createRandomRealMatrix(n);
 		//DETERMINENT == 0 ???
 		Matrix E = MatrixFactory::identityMatrix(n);

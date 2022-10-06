@@ -15,7 +15,7 @@ bool Matrix::LUextensionUsingSum(Matrix& L, Matrix& U) {
 				U[i][j] = table[i][j] - sum;
 			}
 			else {
-				if (U[j][j] < 0.00001)
+				if (abs(U[j][j]) < 0.0001)
 					return true;
 				L[i][j] = (table[i][j] - sum) / U[j][j];
 			}

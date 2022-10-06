@@ -227,6 +227,25 @@ private:
 		}
 	}
 public:
+
+	Matrix submatrix(int dimention) {
+		if (dimention >= n) {
+			return (*this);
+		}
+		if (dimention <= 0) {
+			return Matrix(0);
+		}
+		Matrix result(dimention);
+		for (int i = 0; i < dimention; i++) {
+			Row toAdd;
+			for (int j = 0; j < dimention; j++) {
+				result[i][j] = this->table[i][j];
+			}
+			result.table.push_back(toAdd);
+		}
+		return result;
+	}
+
 	Row operator [](std::size_t i) const {
 		return table[i];
 	}
